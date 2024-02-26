@@ -1,0 +1,6 @@
+[submodule "Submodules/SHT_41"]
+	path = Submodules/SHT_41
+	url = https://github.com/DomotiqU-S/SHT_41.git
+[submodule "Submodules/LightSensor"]
+	path = Submodules/LightSensor
+	url = https://github.com/DomotiqU-S/LightSensor.git
