@@ -1,3 +1,6 @@
 [submodule "components/BusIO"]
 	path = components/BusIO
-	url = https://github.com/DomotiqU-S/BusIO
+	url = git@github.com:DomotiqU-S/BusIO.git
+[submodule "BusIO"]
+	path = BusIO
+	url = git@github.com:DomotiqU-S/BusIO.git
