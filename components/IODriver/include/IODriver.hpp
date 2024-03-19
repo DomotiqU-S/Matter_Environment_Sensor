@@ -5,6 +5,11 @@
 #include <esp_log.h>
 #include <esp_matter.h>
 
+#define MOTION_INTERVAL_CHECK 600 * 1000 // 10 minutes
+#define MOTION_PIN (gpio_num_t) 11
+#define SDA_PIN (gpio_num_t) 0
+#define SCL_PIN (gpio_num_t) 1
+
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include "esp_openthread_types.h"
 #endif

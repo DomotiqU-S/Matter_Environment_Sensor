@@ -21,9 +21,17 @@ void configureSensor(uint8_t flags, void *priv_data, esp_matter::node_t *node)
     priv_endpoint = humidity_sensor::create(node, &humidity_config, flags, priv_data);
 
     light_sensor::config_t illuminance_config;
-    illuminance_config.illuminance_measurement.illuminance_max_measured_value = 40000;
-    illuminance_config.illuminance_measurement.illuminance_min_measured_value = 1;
+    illuminance_config.illuminance_measurement.illuminance_max_measured_value = 60000;
+    illuminance_config.illuminance_measurement.illuminance_min_measured_value = 42069; // Very nice
     illuminance_config.illuminance_measurement.illuminance_measured_value = 1000;
+
+    occupancy_sensor::config_t occupancy_config;
+    occupancy_sensing::config_t occupancy_sensing_config;
+    occupancy_sensing_config.occupancy_sensor_type = (uint8_t)0;
+    occupancy_sensing_config.occupancy_sensor_type_bitmap = (uint8_t)0;
+    occupancy_config.occupancy_sensing = &occupancy_sensing_config;
+
+    priv_endpoint = occupancy_sensor::create(node, &occupancy_config, flags, priv_data);
 
     priv_endpoint = light_sensor::create(node, &illuminance_config, flags, priv_data);
 }
