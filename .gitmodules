@@ -4,3 +4,9 @@
 [submodule "BusIO"]
 	path = BusIO
 	url = git@github.com:DomotiqU-S/BusIO.git
+[submodule "components/LightSensor"]
+	path = components/LightSensor
+	url = git@github.com:DomotiqU-S/LightSensor.git
+[submodule "components/TempSensor"]
+	path = components/TempSensor
+	url = git@github.com:DomotiqU-S/SHT_41.git
