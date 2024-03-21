@@ -26,10 +26,8 @@ void configureSensor(uint8_t flags, void *priv_data, esp_matter::node_t *node)
     illuminance_config.illuminance_measurement.illuminance_measured_value = 1000;
 
     occupancy_sensor::config_t occupancy_config;
-    occupancy_sensing::config_t occupancy_sensing_config;
-    occupancy_sensing_config.occupancy_sensor_type = (uint8_t)0;
-    occupancy_sensing_config.occupancy_sensor_type_bitmap = (uint8_t)0;
-    occupancy_config.occupancy_sensing = &occupancy_sensing_config;
+    occupancy_config.occupancy_sensing.occupancy_sensor_type = (uint8_t)0;
+    occupancy_config.occupancy_sensing.occupancy_sensor_type_bitmap = (uint8_t)0;
 
     priv_endpoint = occupancy_sensor::create(node, &occupancy_config, flags, priv_data);
 

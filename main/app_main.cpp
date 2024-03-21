@@ -13,18 +13,34 @@
 #include <esp_matter.h>
 #include <esp_matter_console.h>
 #include <esp_matter_ota.h>
+#include <esp_sleep.h>
+#include "esp_timer.h"
 #include "IODriver.hpp"
 #include "SensorConfigurator.hpp"
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include <platform/ESP32/OpenthreadLauncher.h>
 #endif
 
+#define TIMER_WAKEUP_TIME_US (1 * 60 * 1000000) // 1 minute
+
 static const char *TAG = "app_main";
 uint16_t sensor_endpoint_id = 0;
+bool is_ready_sleep = false;
 
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
+
+void taskSleep(void *parameters) {
+    while(1) {
+        if(is_ready_sleep) {
+            esp_sleep_enable_timer_wakeup(TIMER_WAKEUP_TIME_US);
+            uint64_t time = esp_timer_get_time();
+            esp_light_sleep_start();
+        }
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+    }
+}
 
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
@@ -35,6 +51,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
         ESP_LOGI(TAG, "Commissioning complete");
+        //is_ready_sleep = true;
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
@@ -113,6 +130,9 @@ extern "C" void app_main()
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Matter start failed: %d", err);
     }
+
+    /* Start the task to read the sensor */
+    startTask();
 
 #if CONFIG_ENABLE_CHIP_SHELL
     esp_matter::console::diagnostics_register_commands();

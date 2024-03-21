@@ -5,10 +5,11 @@
 #include <esp_log.h>
 #include <esp_matter.h>
 
-#define MOTION_INTERVAL_CHECK 600 * 1000 // 10 minutes
+#define MOTION_INTERVAL_CHECK 10
+#define MOTION_TIME_THRESHOLD 300 * 1000
 #define MOTION_PIN (gpio_num_t) 11
-#define SDA_PIN (gpio_num_t) 0
-#define SCL_PIN (gpio_num_t) 1
+#define SDA_PIN (gpio_num_t) 9
+#define SCL_PIN (gpio_num_t) 8
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include "esp_openthread_types.h"
@@ -23,9 +24,13 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
 
 esp_err_t app_driver_set_default(uint16_t endpoint_id);
 
-int16_t formatForAttribute(int16_t value, uint8_t precision);
+int16_t formatForAttribute(float value, uint8_t precision);
 
-void decomposeNumber(int16_t value, uint8_t* result);
+void decomposeNumber(float value, uint8_t* result);
+
+void readSensor();
+
+void startTask();
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #define ESP_OPENTHREAD_DEFAULT_RADIO_CONFIG()                                           \
