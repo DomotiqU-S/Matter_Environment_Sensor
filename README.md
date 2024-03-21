@@ -31,3 +31,4 @@ This project uses 3 different libraries to control the sensors. The libraries ar
 Other version of the libraries may not work with the project. They don't have been tested with the project. The project has been tested on ESP32-S3 and ESP32-H2 boards. The other board compatible with the framework should work with this project.
 
 ## Usage
+To use the program flash it to an ESP32 and pair with it with a matter controller. At the moment, the program can be use with chip-tool and with a Apple ,atter controller. Other solution has not been tested yet.
