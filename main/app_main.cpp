@@ -23,7 +23,7 @@
 
 #define TIMER_WAKEUP_TIME_US (1 * 60 * 1000000) // 1 minute
 
-static const char *TAG = "app_main";
+static const char *TAG = "matter_sensor_device";
 uint16_t sensor_endpoint_id = 0;
 bool is_ready_sleep = false;
 
@@ -31,17 +31,13 @@ using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
 
-void taskSleep(void *parameters) {
-    while(1) {
-        if(is_ready_sleep) {
-            esp_sleep_enable_timer_wakeup(TIMER_WAKEUP_TIME_US);
-            uint64_t time = esp_timer_get_time();
-            esp_light_sleep_start();
-        }
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
-}
 
+/**
+ * @brief Callback for the commissionning events
+ * 
+ * @param event 
+ * @param arg 
+ */
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
@@ -107,6 +103,8 @@ extern "C" void app_main()
 
     /* Initialize the ESP NVS layer */
     nvs_flash_init();
+
+    /* Initiate the driver for all the sensors */
     app_driver_switch_init();
 
     /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */

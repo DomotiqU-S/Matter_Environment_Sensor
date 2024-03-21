@@ -84,7 +84,7 @@ void taskMotionSensor(void *parameters) {
     }
 }
 
-void app_driver_switch_init()
+void app_driver_sensors()
 {   
     // Set the motion pin as input and interrupt on positive edge
     gpio_config_t io_conf;
