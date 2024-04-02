@@ -10,8 +10,11 @@
 #include <esp_log.h>
 #include <nvs_flash.h>
 
+#if CONFIG_PM_ENABLE
+#include <esp_pm.h>
+#endif
+
 #include <esp_matter.h>
-#include <esp_matter_console.h>
 #include <esp_matter_ota.h>
 #include <esp_sleep.h>
 #include "esp_timer.h"
@@ -20,6 +23,9 @@
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include <platform/ESP32/OpenthreadLauncher.h>
 #endif
+
+#include <app/server/CommissioningWindowManager.h>
+#include <app/server/Server.h>
 
 #define TIMER_WAKEUP_TIME_US (1 * 60 * 1000000) // 1 minute
 
@@ -30,24 +36,19 @@ bool is_ready_sleep = false;
 using namespace esp_matter;
 using namespace esp_matter::attribute;
 using namespace esp_matter::endpoint;
+using namespace chip::app::Clusters;
 
+constexpr auto k_timeout_seconds = 300;
 
-/**
- * @brief Callback for the commissionning events
- * 
- * @param event 
- * @param arg 
- */
 static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 {
     switch (event->Type) {
     case chip::DeviceLayer::DeviceEventType::kInterfaceIpAddressChanged:
-        ESP_LOGI(TAG, "Interface IP Address Changed");
+        ESP_LOGI(TAG, "Interface IP Address changed");
         break;
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
         ESP_LOGI(TAG, "Commissioning complete");
-        //is_ready_sleep = true;
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
@@ -70,6 +71,40 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
         ESP_LOGI(TAG, "Commissioning window closed");
         break;
 
+    case chip::DeviceLayer::DeviceEventType::kFabricRemoved:
+        {
+            ESP_LOGI(TAG, "Fabric removed successfully");
+            if (chip::Server::GetInstance().GetFabricTable().FabricCount() == 0)
+            {
+                chip::CommissioningWindowManager & commissionMgr = chip::Server::GetInstance().GetCommissioningWindowManager();
+                constexpr auto kTimeoutSeconds = chip::System::Clock::Seconds16(k_timeout_seconds);
+                if (!commissionMgr.IsCommissioningWindowOpen())
+                {
+                    /* After removing last fabric, this example does not remove the Wi-Fi credentials
+                     * and still has IP connectivity so, only advertising on DNS-SD.
+                     */
+                    CHIP_ERROR err = commissionMgr.OpenBasicCommissioningWindow(kTimeoutSeconds,
+                                                    chip::CommissioningWindowAdvertisement::kDnssdOnly);
+                    if (err != CHIP_NO_ERROR)
+                    {
+                        ESP_LOGE(TAG, "Failed to open commissioning window, err:%" CHIP_ERROR_FORMAT, err.Format());
+                    }
+                }
+            }
+        break;
+        }
+
+    case chip::DeviceLayer::DeviceEventType::kFabricWillBeRemoved:
+        ESP_LOGI(TAG, "Fabric will be removed");
+        break;
+
+    case chip::DeviceLayer::DeviceEventType::kFabricUpdated:
+        ESP_LOGI(TAG, "Fabric is updated");
+        break;
+
+    case chip::DeviceLayer::DeviceEventType::kFabricCommitted:
+        ESP_LOGI(TAG, "Fabric is committed");
+        break;
     default:
         break;
     }
@@ -104,8 +139,18 @@ extern "C" void app_main()
     /* Initialize the ESP NVS layer */
     nvs_flash_init();
 
-    /* Initiate the driver for all the sensors */
-    app_driver_switch_init();
+    #if CONFIG_PM_ENABLE
+        esp_pm_config_t pm_config = {
+            .max_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ,
+            .min_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ,
+        #if CONFIG_FREERTOS_USE_TICKLESS_IDLE
+                .light_sleep_enable = true
+        #endif
+            };
+            err = esp_pm_configure(&pm_config);
+    #endif
+
+    app_driver_sensors();
 
     /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
     node::config_t node_config;
@@ -130,11 +175,5 @@ extern "C" void app_main()
     }
 
     /* Start the task to read the sensor */
-    startTask();
-
-#if CONFIG_ENABLE_CHIP_SHELL
-    esp_matter::console::diagnostics_register_commands();
-    esp_matter::console::wifi_register_commands();
-    esp_matter::console::init();
-#endif
+    //startTask();
 }
