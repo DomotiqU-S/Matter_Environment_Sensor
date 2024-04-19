@@ -7,7 +7,7 @@
 #include <device.h>
 #include <driver/gpio.h>
 #include <esp_matter.h>
-#include <esp_matter_console.h>
+#include <esp_matter_console.h>1
 #include "SHT41.hpp"
 #include "VEML7700.hpp"
 

@@ -175,5 +175,5 @@ extern "C" void app_main()
     }
 
     /* Start the task to read the sensor */
-    //startTask();
+    // startTask();
 }

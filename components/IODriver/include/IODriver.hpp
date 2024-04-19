@@ -8,8 +8,8 @@
 #define MOTION_INTERVAL_CHECK 10
 #define MOTION_TIME_THRESHOLD 300 * 1000
 #define MOTION_PIN (gpio_num_t) 11
-#define SDA_PIN (gpio_num_t) 9
-#define SCL_PIN (gpio_num_t) 8
+#define SDA_PIN (gpio_num_t) 0
+#define SCL_PIN (gpio_num_t) 10
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 #include "esp_openthread_types.h"
