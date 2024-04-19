@@ -9,4 +9,4 @@
 	url = git@github.com:DomotiqU-S/LightSensor.git
 [submodule "components/TempSensor"]
 	path = components/TempSensor
-	url = https://github.com/DomotiqU-S/SHT_41
+	url = git@github.com:DomotiqU-S/SHT_41.git
