@@ -1,0 +1,29 @@
+
+menu "Settings Sensor Device"
+
+    menu "Sensor Hardware"
+        config PIN_MOTION_SENSOR
+            int "Pin for button"
+            range 0 27
+            default 11
+            help
+                This is the pin for the motion sensor
+    endmenu
+
+    menu "Sensor communication"
+        config I2C_SDA
+            int "Pin for i2c data"
+            range 0 27
+            default 0
+            help
+                The data pin for i2c
+
+        config I2C_SCL
+            int "Pin for i2c clock"
+            range 0 27
+            default 10
+            help
+                The clock pin for i2c
+    endmenu
+
+endmenu

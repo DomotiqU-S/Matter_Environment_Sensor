@@ -34,8 +34,8 @@ void readSensor() {
     float temp = sht41.getTemperature();
     float hum = sht41.getHumidity();
 
-    float lux = veml7700.readAlsLux();
-    float mesured_lux = 10000 * log10(lux) + 1;
+    // float lux = veml7700.readAlsLux();
+    // float mesured_lux = 10000 * log10(lux) + 1;
 
     esp_matter_attr_val_t val_temp;
     val_temp.type = esp_matter_val_type_t::ESP_MATTER_VAL_TYPE_INT16;
@@ -47,17 +47,17 @@ void readSensor() {
     val_hum.val.i16 = formatForAttribute(hum * 100, 0);
     esp_matter::attribute::update(0x2, 0x405, 0x0, &val_hum);
 
-    esp_matter_attr_val_t val_light;
-    val_light.type = esp_matter_val_type_t::ESP_MATTER_VAL_TYPE_INT16;
-    val_light.val.i16 = formatForAttribute(mesured_lux, 1);
-    esp_matter::attribute::update(0x4, 0x400, 0x0, &val_light);
+    // esp_matter_attr_val_t val_light;
+    // val_light.type = esp_matter_val_type_t::ESP_MATTER_VAL_TYPE_INT16;
+    // val_light.val.i16 = formatForAttribute(mesured_lux, 1);
+    // esp_matter::attribute::update(0x4, 0x400, 0x0, &val_light);
 
 }
 
 void taskReadSensor(void *parameters) {
     while(1) {
         readSensor();
-        vTaskDelay(60000 / portTICK_PERIOD_MS);
+        vTaskDelay(15000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -95,13 +95,13 @@ void app_driver_sensors()
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(MOTION_PIN, mottionDetected, (void*) MOTION_PIN);
+    // gpio_install_isr_service(0);
+    // gpio_isr_handler_add(MOTION_PIN, mottionDetected, (void*) MOTION_PIN);
 
     sht41.begin();
-    vTaskDelay(50 / portTICK_PERIOD_MS);
-    veml7700.begin();
-    vTaskDelay(50 / portTICK_PERIOD_MS);
+    vTaskDelay(150 / portTICK_PERIOD_MS);
+    // veml7700.begin();
+    // vTaskDelay(150 / portTICK_PERIOD_MS);
 }
 
 esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_t endpoint_id, uint32_t cluster_id,
@@ -154,5 +154,5 @@ int16_t formatForAttribute(float value, uint8_t precision) {
 
 void startTask() {
     xTaskCreate(taskReadSensor, "taskReadSensor", 4096, NULL, 5, NULL);
-    xTaskCreate(taskMotionSensor, "taskMotionSensor", 4096, NULL, 5, NULL);
+    // xTaskCreate(taskMotionSensor, "taskMotionSensor", 4096, NULL, 5, NULL);
 }
